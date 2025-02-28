@@ -1,26 +1,50 @@
 // server.js
-const express = require('express');
 const dotenv = require('dotenv');
-dotenv.config();
-const cors = require('cors');
-const { connectDB } = require('./config/db');
+dotenv.config(); // Încărcăm variabilele de mediu imediat
 
-const authRoutes = require('./routes/authRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+const express = require('express');
+const cors = require('cors');
+const { pool, connectDB } = require('./config/db');
+
+console.log({
+  DB_USER: process.env.DB_USER,
+  DB_HOST: process.env.DB_HOST,
+  DB_NAME: process.env.PGDATABASE,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+  DB_PORT: process.env.DB_PORT,
+});
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
+// Conectăm baza de date
 connectDB();
 
-// Montarea rutei pentru autentificare
+// Importăm rutele
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
+// Montăm rutele
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+
+app.get('/', (req, res) => {
+  res.send('E-commerce API is running...');
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+
 

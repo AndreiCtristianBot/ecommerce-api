@@ -4,8 +4,10 @@ const { pool } = require('../config/db');
 const getProducts = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM products');
+        console.log('Products retrieved:', result.rows); 
         res.json(result.rows);
     } catch (err) {
+        console.error('Error in getProducts:', err); // Log eroarea detaliată
         res.status(500).json({ message: 'Error retrieving products' });
     }
 };
