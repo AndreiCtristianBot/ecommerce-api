@@ -4,6 +4,7 @@ dotenv.config(); // Încărcăm variabilele de mediu imediat
 
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session'); // Pentru sesiuni, necesare la OAuth
 const { pool, connectDB } = require('./config/db');
 
 console.log({
@@ -20,10 +21,42 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Configurare sesiuni (necesare pentru Passport cu OAuth)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default_secret',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Importă Passport configurat pentru Google OAuth
+const passport = require('./auth/authGoogle');
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Conectăm baza de date
 connectDB();
 
-// Importăm rutele
+// Rutele pentru Google OAuth
+app.get('/api/auth/google', 
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/api/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Generează un token JWT pentru utilizatorul autentificat
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { userId: req.user.id, email: req.user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    // Redirecționează către frontend cu token-ul în query string
+    res.redirect(`http://localhost:3000/?token=${token}`);
+  }
+);
+
+// Importăm celelalte rute
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -44,6 +77,8 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
 
 
 
