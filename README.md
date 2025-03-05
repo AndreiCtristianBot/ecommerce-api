@@ -23,7 +23,7 @@ This is the backend of the e-commerce project, built using Node.js, Express, and
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ecommerce-api.git
+   git clone https://github.com/AndreiCtristianBot/ecommerce-api.git
    cd ecommerce-api
 
 2. **Install dependencies:**
