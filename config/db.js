@@ -10,6 +10,9 @@ const poolConfig = {
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   connectionTimeoutMillis: 5000,
+  ssl: {
+    rejectUnauthorized: false // Permite conexiuni SSL fără verificarea autorității (folosit pentru Render)
+  }
 };
 
 console.log('Pool config:', poolConfig);
